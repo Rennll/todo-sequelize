@@ -8,6 +8,7 @@ const routes = require('./routes')
 
 const app = express()
 const PORT = 3000
+
 app.engine('hbs', exphbs({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
 app.use(express.urlencoded({ extended: true }))
@@ -18,6 +19,11 @@ app.use(session({
   saveUninitialized: true
 }))
 UsePassport(app)
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.isAuthenticated()
+  res.locals.user = req.user
+  next()
+})
 app.use(routes)
 
 app.listen(PORT, () => {
