@@ -11,7 +11,8 @@ router.get('/login', (req, res) => {
 
 router.post('/login', passport.authenticate('local', {
   successRedirect: '/',
-  failureRedirect: '/users/login'
+  failureRedirect: '/users/login',
+  failureFlash: true
 }))
 
 router.get('/register', (req, res) => {
@@ -21,15 +22,23 @@ router.get('/register', (req, res) => {
 router.post('/register', (req, res) => {
   const { name, email, password, confirmPassword } = req.body
   User.findOne({ where: { email } }).then(user => {
+    const errors = []
     if (user) {
-      console.log('User already exists')
+      errors.push({ message: 'User already exists' })
+    }
+    if (password !== confirmPassword) {
+      errors.push({ message: '兩個密碼必須相等' })
+    }
+    if (errors.length) {
       return res.render('register', {
         name,
         email,
         password,
-        confirmPassword
+        confirmPassword,
+        errors
       })
     }
+
     return bcrypt
       .genSalt(10)
       .then(salt => bcrypt.hash(password, salt))
@@ -44,6 +53,7 @@ router.post('/register', (req, res) => {
 })
 
 router.post('/logout', (req, res) => {
+  req.flash('success_msg', '成功登出')
   req.logout()
   res.redirect('/users/login')
 })
