@@ -36,12 +36,25 @@ router.get('/:id/edit', (req, res) => {
 router.put('/:id', async (req, res) => {
   const id = req.params.id
   const { name, isDone } = req.body
+
   try {
     const todo = await Todo.findByPk(id)
     todo.name = name
     todo.isDone = !!isDone
     await todo.save()
     res.redirect(`/todos/${id}`)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+router.delete('/:id', async (req, res) => {
+  const id = req.params.id
+
+  try {
+    const todo = await Todo.findByPk(id)
+    await todo.destroy()
+    res.redirect('/')
   } catch (error) {
     console.log(error)
   }
