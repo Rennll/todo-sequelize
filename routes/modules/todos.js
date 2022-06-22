@@ -26,4 +26,25 @@ router.get('/:id', (req, res) => {
     .catch(error => console.log(error))
 })
 
+router.get('/:id/edit', (req, res) => {
+  const id = req.params.id
+  return Todo.findByPk(id)
+    .then(todo => res.render('edit', { todo: todo.toJSON() }))
+    .catch(error => console.log(error))
+})
+
+router.put('/:id', async (req, res) => {
+  const id = req.params.id
+  const { name, isDone } = req.body
+  try {
+    const todo = await Todo.findByPk(id)
+    todo.name = name
+    todo.isDone = !!isDone
+    await todo.save()
+    res.redirect(`/todos/${id}`)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 module.exports = router
